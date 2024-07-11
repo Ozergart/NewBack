@@ -1,6 +1,8 @@
 const express = require('express')
 const app = express()
-const users = require('./users')
+const fs = require('node:fs/promises')
+const usersFS = './usersFS.json'
+
 
 app.use(express.json())
 app.use(express.urlencoded({extended:true}))
@@ -15,12 +17,27 @@ function passwordValidator(password) {
     const passwordRegex = /^[a-zA-Z0-9]{6,}$/;
     return passwordRegex.test(password);
 }
-
-
 // function nameValidator(name) {
 //     const nameRegex = /^[A-Z][a-zA-Z]*$/;
 //     return nameRegex.test(name);
 // }
+async function usersFromFile(){
+    try {
+        const data = await fs.readFile(usersFS, 'utf8')
+        return JSON.parse(data)
+    }catch (e){
+        console.log(e.message)
+    }
+
+}
+async function usersToFile(users){
+    await fs.writeFile(usersFS, JSON.stringify(users, null, 2),'utf8')
+    console.log('saved')
+}
+
+let users = [];
+usersFromFile().then(data => {users = data})
+
 
 app.get('/users',(req,res)=>{
     try {
@@ -43,7 +60,7 @@ app.get('/users/:userId',(req,res)=>{
         res.status(400).json(e.message)
     }
 })
-app.post('/users',(req,res)=>{
+app.post('/users',async (req,res)=>{
     try {
         const {name, email, password} = req.body
         const index = users.findIndex((user)=>user.email === email)
@@ -66,6 +83,7 @@ app.post('/users',(req,res)=>{
                 password
             }
             users.push(newUser)
+            await usersToFile(users)
             res.status(201).json(newUser)
         }
 
@@ -73,7 +91,7 @@ app.post('/users',(req,res)=>{
         res.status(400).json(e.message)
     }
 })
-app.put('/users/:userId',(req,res)=>{
+app.put('/users/:userId',async (req,res)=>{
     try {
         const userID = Number(req.params.userId)
         const user = users.find((user)=>user.id === userID)
@@ -91,26 +109,30 @@ app.put('/users/:userId',(req,res)=>{
             if (name) {
                 user.name = name
             }
+            await usersToFile(users)
             res.status(201).json(user)
         }
     }catch (e){
         res.status(400).json(e.message)
     }
 })
-app.delete('/users/:userId',(req,res)=>{
+app.delete('/users/:userId',async (req,res)=>{
     try {
         const userID = Number(req.params.userId)
         const index = users.findIndex((user)=>user.id === userID)
         if (index === -1){
             return res.status(404).json('user not found')
         }else {
-            users.slice(index, 1)
+            users.splice(index, 1)
+            await usersToFile(users)
             res.status(204).json('user deleted')
         }
     }catch (e){
         res.status(400).json(e.message)
     }
 })
-app.listen(3000,()=>{
-    console.log('server is')
+usersFromFile().then(()=>{
+    app.listen(3000,()=>{
+        console.log('server is')
+    })
 })
