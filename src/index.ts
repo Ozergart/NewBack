@@ -9,16 +9,13 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/users", userRouter);
-app.use("/users/:userId", userRouter);
-app.use("/users", userRouter);
-app.use("/users/:userId", userRouter);
-app.use("/users/:userId", userRouter);
+
 app.use("*", (err: ApiError, req: Request, res: Response) => {
   res.status(err.status || 500).json(err.message);
 });
 process.on("uncaughtException", (e) => {
   console.error("uncaughtException", e.message, e.stack);
-  process.exit(1);
+  // process.exit(1);
 });
 
 app.listen(3000, () => {

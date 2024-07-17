@@ -33,10 +33,8 @@ class UserController {
   public async deleteUser(req: Request, res: Response, next: NextFunction) {
     try {
       const userID = Number(req.params.userId);
-      const resul = await userService.deleteUser(userID);
-      if (resul === 1) {
-        res.status(204);
-      }
+      await userService.deleteUser(userID);
+      res.sendStatus(204);
     } catch (e) {
       next(e);
     }
