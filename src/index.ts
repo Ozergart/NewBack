@@ -2,7 +2,6 @@ import express, { Request, Response } from "express";
 
 import { ApiError } from "./errors/api-error";
 import { userRouter } from "./routers/user.router";
-import { fsService } from "./services/fsService";
 
 const app = express();
 
@@ -21,8 +20,7 @@ process.on("uncaughtException", (e) => {
   console.error("uncaughtException", e.message, e.stack);
   process.exit(1);
 });
-fsService.usersFromFile().then(() => {
-  app.listen(3000, () => {
-    console.log("server is running");
-  });
+
+app.listen(3000, () => {
+  console.log("server is running");
 });
