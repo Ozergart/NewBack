@@ -15,7 +15,7 @@ app.use("*", (err: ApiError, req: Request, res: Response) => {
 });
 process.on("uncaughtException", (e) => {
   console.error("uncaughtException", e.message, e.stack);
-  // process.exit(1);
+  process.exit(1);
 });
 
 app.listen(3000, () => {
