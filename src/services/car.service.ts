@@ -8,5 +8,11 @@ class CarService {
   public async create(dto: Partial<ICar>): Promise<ICar> {
     return await carRepository.create(dto);
   }
+  public async getCar(dto: number): Promise<ICar> {
+    return await carRepository.getCar(dto);
+  }
+  public async deleteCar(dto: number) {
+    await carRepository.delete(dto);
+  }
 }
 export const carService = new CarService();

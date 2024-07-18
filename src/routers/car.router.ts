@@ -6,8 +6,7 @@ const router = Router();
 
 router.get("/", carController.getList);
 router.post("/", carController.create);
-router.get("/:carId", carController.getUser);
-router.delete("/:carId", carController.deleteUser);
-router.put("/:carId", carController.changeUser);
+router.get("/:carId", carController.getCar);
+router.delete("/:carId", carController.deleteCar);
 
-export const userRouter = router;
+export const carRouter = router;

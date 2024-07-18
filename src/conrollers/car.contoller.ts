@@ -22,6 +22,24 @@ class CarController {
       next(e);
     }
   }
+  public async getCar(req: Request, res: Response, next: NextFunction) {
+    try {
+      const dto: number = Number(req.params.carId);
+      const car = await carService.getCar(dto);
+      res.status(200).json(car);
+    } catch (e) {
+      next(e);
+    }
+  }
+  public async deleteCar(req: Request, res: Response, next: NextFunction) {
+    try {
+      const dto: number = Number(req.params.carId);
+      await carService.deleteCar(dto);
+      res.status(204);
+    } catch (e) {
+      next(e);
+    }
+  }
 }
 
 export const carController = new CarController();
