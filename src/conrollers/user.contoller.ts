@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 
+import { IUser } from "../interfaces/user.interface";
 import { userService } from "../services/user.service";
 
 class UserController {
@@ -11,39 +12,38 @@ class UserController {
       next(e);
     }
   }
-
-  public async create(req: Request, res: Response, next: NextFunction) {
-    try {
-      const dto = req.body as any;
-      const result = await userService.create(dto);
-      res.status(201).json(result);
-    } catch (e) {
-      next(e);
-    }
-  }
   public async getUser(req: Request, res: Response, next: NextFunction) {
     try {
-      const userID = Number(req.params.userId);
+      const userID = req.params.userId;
       const result = await userService.getUser(userID);
       res.json(result);
     } catch (e) {
       next(e);
     }
   }
-  public async deleteUser(req: Request, res: Response, next: NextFunction) {
+  public async getMe(req: Request, res: Response, next: NextFunction) {
     try {
-      const userID = Number(req.params.userId);
+      const userID = req.res.locals.jwtPayload.userId as string;
+      const result = await userService.getUser(userID);
+      res.json(result);
+    } catch (e) {
+      next(e);
+    }
+  }
+  public async deleteMe(req: Request, res: Response, next: NextFunction) {
+    try {
+      const userID = req.res.locals.jwtPayload.userId as string;
       await userService.deleteUser(userID);
       res.sendStatus(204);
     } catch (e) {
       next(e);
     }
   }
-  public async changeUser(req: Request, res: Response, next: NextFunction) {
+  public async changeMe(req: Request, res: Response, next: NextFunction) {
     try {
-      const userID = Number(req.params.userId);
-      const { name, email, password } = req.body;
-      const user = await userService.changeUser(userID, name, email, password);
+      const userID = req.res.locals.jwtPayload.userId as string;
+      const dto = req.body as Partial<IUser>;
+      const user = await userService.changeUser(userID, dto);
       res.status(201).json(user);
     } catch (e) {
       next(e);
