@@ -14,6 +14,7 @@ class AuthService {
   ): Promise<{ user: IUser; tokens: ITokenPair }> {
     await this.isEmailExist(dto.email);
     dto.password = await passwordService.hash(dto.password);
+
     const user = await userRepository.create(dto);
     const tokens = await tokenService.generatePair({ userId: user._id });
     await tokenRepository.create({ ...tokens, _userId: user._id });
