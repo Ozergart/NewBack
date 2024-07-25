@@ -19,7 +19,7 @@ class AuthService {
     await tokenRepository.create({ ...tokens, _userId: user._id });
     await emailService.sendEmail(EmailTypeEnum.FORGOT_PASSWORD, user.email, {
       name: dto.name,
-      actionToken: "sdfsf",
+      actionToken: "welcome",
     });
     return { user, tokens };
   }
