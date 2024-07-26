@@ -17,6 +17,11 @@ router.delete(
   authMiddleware.checkAccessToken,
   authController.signOut,
 );
+router.delete(
+  "/all-logout",
+  authMiddleware.checkAccessToken,
+  authController.signOutAll,
+);
 router.post(
   "/sign-in",
   commonMiddleware.isBodyValid(UserValidator.signIn),

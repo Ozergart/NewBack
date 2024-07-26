@@ -44,6 +44,13 @@ class AuthService {
     });
     await tokenRepository.deleteById(oldTokenId);
   }
+  public async signOutAll(payload: ITokenPayload): Promise<void> {
+    const user = await userRepository.getUser(payload._userId);
+    await emailService.sendEmail(EmailTypeEnum.LEAVE, user.email, {
+      name: user.name,
+    });
+    await tokenRepository.deleteByUserId(payload._userId);
+  }
   public async signIn(
     dto: ILogin,
   ): Promise<{ user: IUser; tokens: ITokenPair }> {

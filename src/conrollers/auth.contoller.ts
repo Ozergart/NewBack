@@ -40,8 +40,21 @@ class AuthContoller {
   ): Promise<void> {
     try {
       const jwtPayload = req.res.locals.jwtPayload as ITokenPayload;
-      const oldTokensId = req.res.locals.oldTokens_Id as string;
-      await authService.signOut(jwtPayload, oldTokensId);
+      const TokensId = req.res.locals.oldTokens_Id as string;
+      await authService.signOut(jwtPayload, TokensId);
+      res.sendStatus(204);
+    } catch (e) {
+      next(e);
+    }
+  }
+  public async signOutAll(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
+    try {
+      const jwtPayload = req.res.locals.jwtPayload as ITokenPayload;
+      await authService.signOutAll(jwtPayload);
       res.sendStatus(204);
     } catch (e) {
       next(e);
