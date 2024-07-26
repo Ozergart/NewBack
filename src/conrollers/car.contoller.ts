@@ -24,7 +24,7 @@ class CarController {
   }
   public async getCar(req: Request, res: Response, next: NextFunction) {
     try {
-      const dto: number = Number(req.params.carId);
+      const dto: string = req.params.carId;
       const car = await carService.getCar(dto);
       res.status(200).json(car);
     } catch (e) {
@@ -33,7 +33,7 @@ class CarController {
   }
   public async deleteCar(req: Request, res: Response, next: NextFunction) {
     try {
-      const dto: number = Number(req.params.carId);
+      const dto: string = req.params.carId;
       await carService.deleteCar(dto);
       res.status(204);
     } catch (e) {

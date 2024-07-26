@@ -42,7 +42,7 @@ class AuthContoller {
       const jwtPayload = req.res.locals.jwtPayload as ITokenPayload;
       const oldTokensId = req.res.locals.oldTokens_Id as string;
       await authService.signOut(jwtPayload, oldTokensId);
-      res.status(204).json(" tokens deleted");
+      res.sendStatus(204);
     } catch (e) {
       next(e);
     }

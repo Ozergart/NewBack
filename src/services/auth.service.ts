@@ -62,7 +62,7 @@ class AuthService {
     await tokenRepository.create({ ...tokens, _userId: user._id });
     return { user, tokens };
   }
-  private async isEmailExist(email: string) {
+  private async isEmailExist(email: string): Promise<void> {
     const user = await userRepository.getByParams({ email });
     if (user) {
       throw new ApiError("Email already exists", 409);
