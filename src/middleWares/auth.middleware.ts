@@ -1,8 +1,10 @@
 import { NextFunction, Request, Response } from "express";
 
+import { RoleEnum } from "../enums/role.enum";
 import { tokenTypeEnum } from "../enums/tokenTypes.enum";
 import { ApiError } from "../errors/api-error";
 import { tokenRepository } from "../reposetories/token.reposetory";
+import { userRepository } from "../reposetories/user.reposetory";
 import { tokenService } from "../services/token.service";
 
 class AuthMiddleware {
@@ -28,7 +30,7 @@ class AuthMiddleware {
       }
 
       req.res.locals.jwtPayload = payload;
-      req.res.locals.oldTokens_Id = pair.id;
+      req.res.locals.oldTokens_Id = pair._id;
       next();
     } catch (e) {
       next(e);
@@ -58,7 +60,23 @@ class AuthMiddleware {
       }
 
       req.res.locals.jwtPayload = payload;
-      req.res.locals.oldTokens_Id = pair.id;
+      req.res.locals.oldTokens_Id = pair._id;
+      next();
+    } catch (e) {
+      next(e);
+    }
+  }
+  public async checkAdminAccess(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) {
+    try {
+      const userId = req.res.locals.jwtPayload._userId;
+      const user = await userRepository.getByParams({ _id: userId });
+      if (user.role !== RoleEnum.ADMIN) {
+        throw new ApiError("Access Forbidden", 403);
+      }
       next();
     } catch (e) {
       next(e);
