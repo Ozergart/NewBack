@@ -16,7 +16,7 @@ class AuthService {
     dto.password = await passwordService.hash(dto.password);
 
     const user = await userRepository.create(dto);
-    const tokens = await tokenService.generatePair({ userId: user._id });
+    const tokens = await tokenService.generatePair({ _userId: user._id });
     await tokenRepository.create({ ...tokens, _userId: user._id });
     await emailService.sendEmail(EmailTypeEnum.FORGOT_PASSWORD, user.email, {
       name: dto.name,
@@ -28,9 +28,9 @@ class AuthService {
     payload: ITokenPayload,
     oldTokenId: string,
   ): Promise<ITokenPair> {
-    const user = await userRepository.getByParams({ _id: payload.userId });
-    const tokens = await tokenService.generatePair({ userId: user._id });
-    await tokenRepository.create({ ...tokens, _userId: payload.userId });
+    const user = await userRepository.getByParams({ _id: payload._userId });
+    const tokens = await tokenService.generatePair({ _userId: user._id });
+    await tokenRepository.create({ ...tokens, _userId: payload._userId });
     await tokenRepository.deleteById(oldTokenId);
     return tokens;
   }
@@ -38,7 +38,7 @@ class AuthService {
     payload: ITokenPayload,
     oldTokenId: string,
   ): Promise<void> {
-    const user = await userRepository.getUser(payload.userId);
+    const user = await userRepository.getUser(payload._userId);
     await emailService.sendEmail(EmailTypeEnum.LEAVE, user.email, {
       name: user.name,
     });
@@ -58,7 +58,7 @@ class AuthService {
     if (!isPassCorrect) {
       throw new ApiError("Invalid credentials", 401);
     }
-    const tokens = await tokenService.generatePair({ userId: user._id });
+    const tokens = await tokenService.generatePair({ _userId: user._id });
     await tokenRepository.create({ ...tokens, _userId: user._id });
     return { user, tokens };
   }
