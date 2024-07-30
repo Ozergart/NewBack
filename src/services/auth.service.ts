@@ -24,9 +24,18 @@ class AuthService {
     const user = await userRepository.create(dto);
     const tokens = await tokenService.generatePair({ _userId: user._id });
     await tokenRepository.create({ ...tokens, _userId: user._id });
-    await emailService.sendEmail(EmailTypeEnum.FORGOT_PASSWORD, user.email, {
+    const actionToken = await tokenService.generateActionToken(
+      { _userId: user._id },
+      tokenActionTypeEnum.REGISTER,
+    );
+    await actionTokenRepository.createActionToken({
+      actionToken,
+      type: tokenActionTypeEnum.REGISTER,
+      _userId: user._id,
+    });
+    await emailService.sendEmail(EmailTypeEnum.WELCOME, user.email, {
       name: dto.name,
-      actionToken: "welcome",
+      actionToken,
     });
     return { user, tokens };
   }
@@ -103,6 +112,14 @@ class AuthService {
     await actionTokenRepository.deleteByParams({
       _userId: jwtPayload._userId,
       type: tokenActionTypeEnum.FORGOT_PASSWORD,
+    });
+  }
+  public async verify(jwtPayload: ITokenPayload): Promise<void> {
+    await userRepository.changeUser(jwtPayload._userId, { isVerified: true });
+    console.log(jwtPayload);
+    await actionTokenRepository.deleteByParams({
+      _userId: jwtPayload._userId,
+      type: tokenActionTypeEnum.REGISTER,
     });
   }
   private async isEmailExist(email: string): Promise<void> {

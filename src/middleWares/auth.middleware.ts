@@ -83,31 +83,38 @@ class AuthMiddleware {
       next(e);
     }
   }
-  public async checkActionToken(
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ) {
+  public async checkVerified(req: Request, res: Response, next: NextFunction) {
     try {
-      const token = req.headers.authorization;
-      if (!token) {
-        throw new ApiError("no token", 401);
+      const userId = req.res.locals.jwtPayload._userId;
+      const user = await userRepository.getByParams({ _id: userId });
+      if (user.isVerified === false) {
+        throw new ApiError("Account Not Verified", 403);
       }
-      const payload = tokenService.checkActionToken(
-        token,
-        tokenActionTypeEnum.FORGOT_PASSWORD,
-      );
-
-      const entity = await actionTokenRepository.findByActionToken(token);
-      if (!entity) {
-        throw new ApiError("Token is not valid", 401);
-      }
-
-      req.res.locals.jwtPayload = payload;
       next();
     } catch (e) {
       next(e);
     }
+  }
+  public checkActionToken(type: tokenActionTypeEnum) {
+    return async (req: Request, res: Response, next: NextFunction) => {
+      try {
+        const token = req.headers.authorization;
+        if (!token) {
+          throw new ApiError("no token", 401);
+        }
+        const payload = tokenService.checkActionToken(token, type);
+
+        const entity = await actionTokenRepository.findByActionToken(token);
+        if (!entity) {
+          throw new ApiError("Token is not valid", 401);
+        }
+
+        req.res.locals.jwtPayload = payload;
+        next();
+      } catch (e) {
+        next(e);
+      }
+    };
   }
 }
 

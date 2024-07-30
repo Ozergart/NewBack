@@ -51,6 +51,10 @@ class TokenService {
         secret = configs.JWT_ACTION_FORGOT_PASSWORD_SECRET;
         expiresIn = configs.JWT_ACTION_FORGOT_PASSWORD_EXPIRE_IN;
         break;
+      case tokenActionTypeEnum.REGISTER:
+        secret = configs.JWT_ACTION_REGISTER_SECRET;
+        expiresIn = configs.JWT_ACTION_REGISTER_EXPIRE_IN;
+        break;
       default:
         throw new ApiError("Action token is not valid", 404);
     }
@@ -65,6 +69,9 @@ class TokenService {
       switch (type) {
         case tokenActionTypeEnum.FORGOT_PASSWORD:
           secret = configs.JWT_ACTION_FORGOT_PASSWORD_SECRET;
+          break;
+        case tokenActionTypeEnum.REGISTER:
+          secret = configs.JWT_ACTION_REGISTER_SECRET;
           break;
         default:
           throw new ApiError("not valid token type", 401);

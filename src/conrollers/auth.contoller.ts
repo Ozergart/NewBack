@@ -8,7 +8,7 @@ import { ITokenPayload } from "../interfaces/token.interface";
 import { ILogin, IUser } from "../interfaces/user.interface";
 import { authService } from "../services/auth.service";
 
-class AuthContoller {
+class AuthController {
   public async signUp(req: Request, res: Response, next: NextFunction) {
     try {
       const dto = req.body as IUser;
@@ -91,6 +91,19 @@ class AuthContoller {
       next(e);
     }
   }
+  public async verify(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
+    try {
+      const jwtPayload = req.res.locals.jwtPayload as ITokenPayload;
+      await authService.verify(jwtPayload);
+      res.sendStatus(204);
+    } catch (e) {
+      next(e);
+    }
+  }
 }
 
-export const authController = new AuthContoller();
+export const authController = new AuthController();

@@ -4,4 +4,5 @@ export enum tokenTypeEnum {
 }
 export enum tokenActionTypeEnum {
   FORGOT_PASSWORD = "FORGOT_PASSWORD",
+  REGISTER = "REGISTER",
 }

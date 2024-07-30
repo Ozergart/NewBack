@@ -8,7 +8,12 @@ import { UserValidator } from "../validators/user.validators";
 const router = Router();
 
 router.get("/", userController.getList);
-router.get("/me", authMiddleware.checkAccessToken, userController.getMe);
+router.get(
+  "/me",
+  authMiddleware.checkAccessToken,
+  authMiddleware.checkVerified,
+  userController.getMe,
+);
 router.get(
   "/:userId",
   commonMiddleware.isIdValid("userId"),
@@ -17,6 +22,7 @@ router.get(
 router.put(
   "/me",
   authMiddleware.checkAccessToken,
+  authMiddleware.checkVerified,
   commonMiddleware.isBodyValid(UserValidator.updateUser),
   userController.changeMe,
 );

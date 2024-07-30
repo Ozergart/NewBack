@@ -10,12 +10,14 @@ const router = Router();
 router.get(
   "/",
   authMiddleware.checkAccessToken,
+  authMiddleware.checkVerified,
   authMiddleware.checkAdminAccess,
   carController.getList,
 );
 router.post(
   "/",
   authMiddleware.checkAccessToken,
+  authMiddleware.checkVerified,
   authMiddleware.checkAdminAccess,
   commonMiddleware.isBodyValid(CarValidators.createCar),
   carController.create,
@@ -23,6 +25,7 @@ router.post(
 router.get(
   "/:carId",
   authMiddleware.checkAccessToken,
+  authMiddleware.checkVerified,
   authMiddleware.checkAdminAccess,
   commonMiddleware.isIdValid,
   carController.getCar,
@@ -30,6 +33,7 @@ router.get(
 router.delete(
   "/:carId",
   authMiddleware.checkAccessToken,
+  authMiddleware.checkVerified,
   authMiddleware.checkAdminAccess,
   commonMiddleware.isIdValid,
   carController.deleteCar,
