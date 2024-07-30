@@ -1,8 +1,9 @@
 import { NextFunction, Request, Response } from "express";
 
 import { RoleEnum } from "../enums/role.enum";
-import { tokenTypeEnum } from "../enums/tokenTypes.enum";
+import { tokenActionTypeEnum, tokenTypeEnum } from "../enums/tokenTypes.enum";
 import { ApiError } from "../errors/api-error";
+import { actionTokenRepository } from "../reposetories/action-token.reposetory";
 import { tokenRepository } from "../reposetories/token.reposetory";
 import { userRepository } from "../reposetories/user.reposetory";
 import { tokenService } from "../services/token.service";
@@ -77,6 +78,32 @@ class AuthMiddleware {
       if (user.role !== RoleEnum.ADMIN) {
         throw new ApiError("Access Forbidden", 403);
       }
+      next();
+    } catch (e) {
+      next(e);
+    }
+  }
+  public async checkActionToken(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) {
+    try {
+      const token = req.headers.authorization;
+      if (!token) {
+        throw new ApiError("no token", 401);
+      }
+      const payload = tokenService.checkActionToken(
+        token,
+        tokenActionTypeEnum.FORGOT_PASSWORD,
+      );
+
+      const entity = await actionTokenRepository.findByActionToken(token);
+      if (!entity) {
+        throw new ApiError("Token is not valid", 401);
+      }
+
+      req.res.locals.jwtPayload = payload;
       next();
     } catch (e) {
       next(e);

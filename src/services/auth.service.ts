@@ -1,7 +1,13 @@
 import { EmailTypeEnum } from "../enums/mail-type.enum";
+import { tokenActionTypeEnum } from "../enums/tokenTypes.enum";
 import { ApiError } from "../errors/api-error";
+import {
+  IForgotResetPassword,
+  IForgotSendEmail,
+} from "../interfaces/action-token.interface";
 import { ITokenPair, ITokenPayload } from "../interfaces/token.interface";
 import { ILogin, IUser } from "../interfaces/user.interface";
+import { actionTokenRepository } from "../reposetories/action-token.reposetory";
 import { tokenRepository } from "../reposetories/token.reposetory";
 import { userRepository } from "../reposetories/user.reposetory";
 import { emailService } from "./email.service";
@@ -68,6 +74,36 @@ class AuthService {
     const tokens = await tokenService.generatePair({ _userId: user._id });
     await tokenRepository.create({ ...tokens, _userId: user._id });
     return { user, tokens };
+  }
+  public async forgotPassword(dto: IForgotSendEmail): Promise<void> {
+    const user = await userRepository.getByParams({ email: dto.email });
+    if (!user) return;
+
+    const actionToken = await tokenService.generateActionToken(
+      { _userId: user._id },
+      tokenActionTypeEnum.FORGOT_PASSWORD,
+    );
+    await actionTokenRepository.createActionToken({
+      actionToken,
+      type: tokenActionTypeEnum.FORGOT_PASSWORD,
+      _userId: user._id,
+    });
+    await emailService.sendEmail(EmailTypeEnum.FORGOT_PASSWORD, dto.email, {
+      name: user.name,
+      actionToken,
+    });
+  }
+  public async restorePass(
+    dto: IForgotResetPassword,
+    jwtPayload: ITokenPayload,
+  ): Promise<void> {
+    const newPass = await passwordService.hash(dto.password);
+    await userRepository.changeUser(jwtPayload._userId, { password: newPass });
+
+    await actionTokenRepository.deleteByParams({
+      _userId: jwtPayload._userId,
+      type: tokenActionTypeEnum.FORGOT_PASSWORD,
+    });
   }
   private async isEmailExist(email: string): Promise<void> {
     const user = await userRepository.getByParams({ email });

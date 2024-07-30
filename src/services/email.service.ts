@@ -39,6 +39,8 @@ class EmailService {
     context: EmailTypeToPayloadType[T],
   ): Promise<void> {
     const { subject, template } = emailConstant[type];
+
+    context["frontUrl"] = configs.FRONTEND_URL;
     const options = {
       to,
       subject,

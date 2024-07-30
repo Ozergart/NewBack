@@ -27,7 +27,13 @@ export class UserValidator {
     phone: UserValidator.phone,
   });
   public static signIn = joi.object({
-    email: UserValidator.email,
-    password: UserValidator.password,
+    email: UserValidator.email.required(),
+    password: UserValidator.password.required(),
+  });
+  public static forgotPass = joi.object({
+    email: UserValidator.email.required(),
+  });
+  public static restorePass = joi.object({
+    password: UserValidator.password.required(),
   });
 }
