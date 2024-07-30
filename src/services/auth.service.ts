@@ -116,7 +116,6 @@ class AuthService {
   }
   public async verify(jwtPayload: ITokenPayload): Promise<void> {
     await userRepository.changeUser(jwtPayload._userId, { isVerified: true });
-    console.log(jwtPayload);
     await actionTokenRepository.deleteByParams({
       _userId: jwtPayload._userId,
       type: tokenActionTypeEnum.REGISTER,
