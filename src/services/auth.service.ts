@@ -6,6 +6,7 @@ import {
   IForgotResetPassword,
   IForgotSendEmail,
 } from "../interfaces/action-token.interface";
+import { IOldPassword } from "../interfaces/old.password.interface";
 import { ITokenPair, ITokenPayload } from "../interfaces/token.interface";
 import { IChangPass, ILogin, IUser } from "../interfaces/user.interface";
 import { actionTokenRepository } from "../reposetories/action-token.reposetory";
@@ -138,7 +139,7 @@ class AuthService {
       throw new ApiError("Invalid password", 401);
     }
     const password = await passwordService.hash(dto.newPassword);
-    const oldPasswords = await passwordRepository.findByParams({
+    const oldPasswords: IOldPassword[] = await passwordRepository.findByParams({
       _userId,
     });
     for (let i = 0; i < oldPasswords.length; i++) {
