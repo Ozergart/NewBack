@@ -24,5 +24,5 @@ const handler = async () => {
     console.log("[EmailCron] error");
   }
 };
-export const EmailsToUnActiveUsersCron = new CronJob("0 10 * * *", handler);
+export const EmailsToUnActiveUsersCron = new CronJob("0 10 */3 * *", handler);
 // export const EmailsToUnActiveUsersCron = new CronJob("*/5 * * * * *", handler);
