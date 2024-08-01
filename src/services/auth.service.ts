@@ -1,3 +1,4 @@
+import { configs } from "../configs/configs";
 import { EmailTypeEnum } from "../enums/mail-type.enum";
 import { tokenActionTypeEnum } from "../enums/tokenTypes.enum";
 import { ApiError } from "../errors/api-error";
@@ -6,8 +7,9 @@ import {
   IForgotSendEmail,
 } from "../interfaces/action-token.interface";
 import { ITokenPair, ITokenPayload } from "../interfaces/token.interface";
-import { ILogin, IUser } from "../interfaces/user.interface";
+import { IChangPass, ILogin, IUser } from "../interfaces/user.interface";
 import { actionTokenRepository } from "../reposetories/action-token.reposetory";
+import { passwordRepository } from "../reposetories/password.repository";
 import { tokenRepository } from "../reposetories/token.reposetory";
 import { userRepository } from "../reposetories/user.reposetory";
 import { emailService } from "./email.service";
@@ -43,7 +45,7 @@ class AuthService {
     payload: ITokenPayload,
     oldTokenId: string,
   ): Promise<ITokenPair> {
-    const user = await userRepository.getByParams({ _id: payload._userId });
+    const user = await userRepository.getOneByParams({ _id: payload._userId });
     const tokens = await tokenService.generatePair({ _userId: user._id });
     await tokenRepository.create({ ...tokens, _userId: payload._userId });
     await tokenRepository.deleteById(oldTokenId);
@@ -69,7 +71,7 @@ class AuthService {
   public async signIn(
     dto: ILogin,
   ): Promise<{ user: IUser; tokens: ITokenPair }> {
-    const user = await userRepository.getByParams({ email: dto.email });
+    const user = await userRepository.getOneByParams({ email: dto.email });
     if (!user) {
       throw new ApiError("Invalid credentials", 401);
     }
@@ -80,12 +82,13 @@ class AuthService {
     if (!isPassCorrect) {
       throw new ApiError("Invalid credentials", 401);
     }
+    await userRepository.updateLastActivityById(user._id);
     const tokens = await tokenService.generatePair({ _userId: user._id });
     await tokenRepository.create({ ...tokens, _userId: user._id });
     return { user, tokens };
   }
   public async forgotPassword(dto: IForgotSendEmail): Promise<void> {
-    const user = await userRepository.getByParams({ email: dto.email });
+    const user = await userRepository.getOneByParams({ email: dto.email });
     if (!user) return;
 
     const actionToken = await tokenService.generateActionToken(
@@ -121,8 +124,43 @@ class AuthService {
       type: tokenActionTypeEnum.REGISTER,
     });
   }
+  public async changePass(
+    dto: IChangPass,
+    jwtPayload: ITokenPayload,
+  ): Promise<void> {
+    const _userId = jwtPayload._userId;
+    const user = await userRepository.getUser(_userId);
+    const isPassCorrect = await passwordService.comparePass(
+      dto.oldPassword,
+      user.password,
+    );
+    if (!isPassCorrect) {
+      throw new ApiError("Invalid password", 401);
+    }
+    const password = await passwordService.hash(dto.newPassword);
+    const oldPasswords = await passwordRepository.findByParams({
+      _userId,
+    });
+    for (let i = 0; i < oldPasswords.length; i++) {
+      const oldPass = oldPasswords[i].oldPassword;
+      const isPassCompare = await passwordService.comparePass(
+        dto.newPassword,
+        oldPass,
+      );
+      if (isPassCompare) {
+        throw new ApiError(
+          `password was used at last ${configs.OLD_PASSWORDS_SAVE_TIME}`,
+          409,
+        );
+      }
+    }
+    const oldPassHash = await passwordService.hash(dto.oldPassword);
+    await passwordRepository.create({ _userId, oldPassword: oldPassHash });
+    await userRepository.changeUser(jwtPayload._userId, { password });
+    await tokenRepository.deleteByUserId(_userId);
+  }
   private async isEmailExist(email: string): Promise<void> {
-    const user = await userRepository.getByParams({ email });
+    const user = await userRepository.getOneByParams({ email });
     if (user) {
       throw new ApiError("Email already exists", 409);
     }

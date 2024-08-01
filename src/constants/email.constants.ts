@@ -13,4 +13,8 @@ export const emailConstant = {
     subject: "Leave",
     template: "leave",
   },
+  [EmailTypeEnum.OLD_VISIT]: {
+    subject: "Old visit",
+    template: "old-visit",
+  },
 };

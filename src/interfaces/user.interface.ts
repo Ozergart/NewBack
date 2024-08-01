@@ -9,10 +9,15 @@ export interface IUser {
   phone?: string;
   role: RoleEnum;
   isVerified: boolean;
+  lastActivity?: Date;
   createdAt?: Date;
   updatedAt?: Date;
 }
 export interface ILogin {
   email: string;
   password: string;
+}
+export interface IChangPass {
+  oldPassword: string;
+  newPassword: string;
 }

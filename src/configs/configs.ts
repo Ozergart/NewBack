@@ -23,4 +23,7 @@ export const configs = {
 
   SMTP_EMAIL: process.env.SMTP_EMAIL,
   SMTP_PASSWORD: process.env.SMTP_PASSWORD,
+
+  OLD_PASSWORDS_SAVE_TIME: process.env.OLD_PASSWORDS_SAVE_TIME,
+  NO_ACTIVITY_TIME_TO_SEND_EMAIL: process.env.NO_ACTIVITY_TIME_TO_SEND_EMAIL,
 };

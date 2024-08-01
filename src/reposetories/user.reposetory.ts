@@ -1,3 +1,6 @@
+import dayjs from "dayjs";
+import { FilterQuery } from "mongoose";
+
 import { ApiError } from "../errors/api-error";
 import { IUser } from "../interfaces/user.interface";
 import { UserModel } from "../models/user.model";
@@ -25,8 +28,14 @@ class UserRepository {
     }
     return user;
   }
-  public async getByParams(params: Partial<IUser>): Promise<IUser> {
+  public async getOneByParams(params: Partial<IUser>): Promise<IUser> {
     return await UserModel.findOne(params);
+  }
+  public async getByParams(params: FilterQuery<IUser>): Promise<IUser[]> {
+    return await UserModel.find(params);
+  }
+  public async updateLastActivityById(id: string) {
+    await UserModel.findByIdAndUpdate(id, { lastActivity: dayjs() });
   }
   public async deleteTokens(id: string): Promise<void> {
     await UserModel.updateOne(

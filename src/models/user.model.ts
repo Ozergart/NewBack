@@ -1,3 +1,4 @@
+import dayjs from "dayjs";
 import mongoose, { Schema } from "mongoose";
 
 import { RoleEnum } from "../enums/role.enum";
@@ -17,6 +18,7 @@ const userSchema = new Schema<IUser>(
       default: RoleEnum.USER,
     },
     isVerified: { type: Boolean, required: true, default: false },
+    lastActivity: { type: Date, required: true, default: dayjs() },
   },
   {
     timestamps: true,

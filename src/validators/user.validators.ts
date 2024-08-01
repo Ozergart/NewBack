@@ -36,4 +36,8 @@ export class UserValidator {
   public static restorePass = joi.object({
     password: UserValidator.password.required(),
   });
+  public static changePassword = joi.object({
+    oldPassword: UserValidator.password.required(),
+    newPassword: UserValidator.password.required(),
+  });
 }

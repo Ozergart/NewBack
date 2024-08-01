@@ -29,7 +29,7 @@ class AuthMiddleware {
       if (!pair) {
         throw new ApiError("Token is not valid", 401);
       }
-
+      await userRepository.updateLastActivityById(payload._userId);
       req.res.locals.jwtPayload = payload;
       req.res.locals.oldTokens_Id = pair._id;
       next();
@@ -59,7 +59,7 @@ class AuthMiddleware {
       if (!pair) {
         throw new ApiError("Token is not valid", 401);
       }
-
+      await userRepository.updateLastActivityById(payload._userId);
       req.res.locals.jwtPayload = payload;
       req.res.locals.oldTokens_Id = pair._id;
       next();
@@ -74,7 +74,7 @@ class AuthMiddleware {
   ) {
     try {
       const userId = req.res.locals.jwtPayload._userId;
-      const user = await userRepository.getByParams({ _id: userId });
+      const user = await userRepository.getOneByParams({ _id: userId });
       if (user.role !== RoleEnum.ADMIN) {
         throw new ApiError("Access Forbidden", 403);
       }
@@ -86,7 +86,7 @@ class AuthMiddleware {
   public async checkVerified(req: Request, res: Response, next: NextFunction) {
     try {
       const userId = req.res.locals.jwtPayload._userId;
-      const user = await userRepository.getByParams({ _id: userId });
+      const user = await userRepository.getOneByParams({ _id: userId });
       if (user.isVerified === false) {
         throw new ApiError("Account Not Verified", 403);
       }

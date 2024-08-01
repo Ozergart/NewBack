@@ -2,6 +2,7 @@ import express, { NextFunction, Request, Response } from "express";
 import mongoose from "mongoose";
 
 import { configs } from "./configs/configs";
+import { jobRunner } from "./crons/crons.all";
 import { ApiError } from "./errors/api-error";
 import { authRouter } from "./routers/auth.router";
 import { carRouter } from "./routers/car.router";
@@ -30,4 +31,5 @@ process.on("uncaughtException", (e) => {
 app.listen(configs.APP_PORT, configs.APP_HOST, async () => {
   await mongoose.connect(configs.MONGO_URL);
   console.log("server is running");
+  jobRunner();
 });
