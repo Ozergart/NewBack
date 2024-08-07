@@ -9,6 +9,7 @@ export interface IUser {
   phone?: string;
   role: RoleEnum;
   isVerified: boolean;
+  Avatar?: string;
   lastActivity?: Date;
   createdAt?: Date;
   updatedAt?: Date;

@@ -1,5 +1,8 @@
+import { UploadedFile } from "express-fileupload";
+
 import { IUser } from "../interfaces/user.interface";
 import { userRepository } from "../reposetories/user.reposetory";
+import { s3Service } from "./s3.service";
 
 class UserService {
   public async getList(): Promise<IUser[]> {
@@ -13,6 +16,26 @@ class UserService {
   }
   public async changeUser(userID: string, dto: Partial<IUser>): Promise<IUser> {
     return await userRepository.changeUser(userID, dto);
+  }
+  public async deleteAvatar(userID: string): Promise<IUser> {
+    const user = await userRepository.getUser(userID);
+    if (user.Avatar) {
+      await s3Service.deleteFile(user.Avatar);
+    }
+    return await userRepository.changeUser(userID, { Avatar: "" });
+  }
+  public async uploadAvatar(
+    userID: string,
+    avatar: UploadedFile,
+  ): Promise<IUser> {
+    const user = await userRepository.getOneByParams({ _id: userID });
+    if (user.Avatar) {
+      await s3Service.deleteFile(user.Avatar);
+    }
+    const Avatar = await s3Service.uploadFile(userID, avatar, "avatar");
+    const newUser = await userRepository.changeUser(userID, { Avatar });
+
+    return newUser;
   }
 }
 export const userService = new UserService();
