@@ -1,8 +1,13 @@
 import { configs } from "../configs/configs";
-import { IUser } from "../interfaces/user.interface";
+import {
+  IUser,
+  IUserListQuery,
+  IUserResponse,
+  IUserResponseList,
+} from "../interfaces/user.interface";
 
 export class UserPresenter {
-  public static toResponse(user: IUser): Partial<IUser> {
+  public static toResponse(user: IUser): IUserResponse {
     return {
       _id: user._id,
       name: user.name,
@@ -15,6 +20,17 @@ export class UserPresenter {
       lastActivity: user.lastActivity,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
+    };
+  }
+  public static toResponseList(
+    data: IUser[],
+    total: number,
+    query: IUserListQuery,
+  ): IUserResponseList {
+    return {
+      data: data.map((item) => this.toResponse(item)),
+      total,
+      ...query,
     };
   }
 }

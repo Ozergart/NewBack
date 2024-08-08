@@ -1,7 +1,9 @@
 import express, { NextFunction, Request, Response } from "express";
 import fileupload from "express-fileupload";
 import mongoose from "mongoose";
+import swaggerUi from "swagger-ui-express";
 
+import swaggerSpec from "../docs/swagger.json";
 import { configs } from "./configs/configs";
 import { jobRunner } from "./crons/crons.all";
 import { ApiError } from "./errors/api-error";
@@ -18,6 +20,7 @@ app.use(fileupload());
 app.use("/users", userRouter);
 app.use("/auth", authRouter);
 app.use("/cars", carRouter);
+app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use(
   "*",

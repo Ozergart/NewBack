@@ -2,12 +2,28 @@ import dayjs from "dayjs";
 import { FilterQuery } from "mongoose";
 
 import { ApiError } from "../errors/api-error";
-import { IUser } from "../interfaces/user.interface";
+import { IUser, IUserListQuery } from "../interfaces/user.interface";
 import { UserModel } from "../models/user.model";
 
 class UserRepository {
-  public async getList(): Promise<IUser[]> {
-    return await UserModel.find();
+  public async getList(query: IUserListQuery): Promise<[IUser[], number]> {
+    const filterObj: FilterQuery<IUser> = { isVerified: true };
+    const limit = 20;
+    if (query.search) {
+      filterObj.$or = [
+        { name: { $regex: query.search, $options: "i" } },
+        { email: { $regex: query.search, $options: "i" } },
+      ];
+    }
+    const sortField = query.orderBy || "name";
+    const sortOrder = query.order === "asc" ? 1 : -1; // По умолчанию "desc"
+
+    const sortObj: any = { [sortField]: sortOrder };
+    const skip = (query.page - 1) * limit;
+    return await Promise.all([
+      UserModel.find(filterObj).limit(limit).skip(skip).sort(sortObj),
+      UserModel.countDocuments(filterObj),
+    ]);
   }
 
   public async getUser(userID: string): Promise<IUser> {
