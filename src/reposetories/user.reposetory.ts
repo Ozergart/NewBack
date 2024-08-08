@@ -29,6 +29,7 @@ class UserRepository {
   public async getUser(userID: string): Promise<IUser> {
     return await UserModel.findById(userID);
   }
+
   public async create(dto: IUser): Promise<IUser> {
     return await UserModel.create(dto);
   }
