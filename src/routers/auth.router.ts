@@ -13,7 +13,7 @@ router.post(
   authController.signUp,
 );
 router.delete(
-  "/sign-out",
+  "/log-out",
   authMiddleware.checkAccessToken,
   authController.signOut,
 );
